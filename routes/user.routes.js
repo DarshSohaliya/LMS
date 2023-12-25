@@ -1,12 +1,16 @@
 import express from 'express'
-import {register,login,logout,getProfile} from '../controllers/user.controller.js'
+import {register,login,logout,getProfile,forgotPassword,resetPassword,updateUser} from '../controllers/user.controller.js'
 import { isLoggedIn } from '../middlewares/auth.middleware.js'
+import upload from '../middlewares/multer.middleware.js'
 
 const router = express.Router() 
 
- router.post('/register' , register)
- router.post('/login' , login)
- router.get('/logout' , logout)
- router.get('/me' ,isLoggedIn ,getProfile)
-
+router.post('/register' ,upload.single("avatar"), register)
+router.post('/login' , login)
+router.get('/logout' , logout)
+router.get('/me' ,isLoggedIn ,getProfile)
+router.post('/forgot-password',forgotPassword)
+router.post('/reset-password' , resetPassword)
+router.post('/change-password',isLoggedIn,changePassword)
+router.post('/update' , isLoggedIn ,upload.single("avatar"),updateUser )
 export default router

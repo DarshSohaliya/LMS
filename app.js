@@ -9,6 +9,7 @@ import errorMiddleware from './middlewares/error.middleware.js'
 const app = express()
 // connectToDb()
 app.use(express.json())
+app.use(express.urlencoded({extended : true}))
 app.use(cors({
     origin:[process.env.FRONTEND_URL],
     credentials:true
