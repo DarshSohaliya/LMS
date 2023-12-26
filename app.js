@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import userRoutes from './routes/user.routes.js'
+import courseRoutes from './routes/course.routes.js'
 import errorMiddleware from './middlewares/error.middleware.js'
 // import connectToDb from './config/db.js'
 
@@ -21,6 +22,9 @@ app.use('/ping' ,(req,res) =>{
 })
   
 app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/course', courseRoutes)
+
+
 app.all('*', (req,res) =>{
     res.status(400).send('OOPS! 404 NOT FOUND')
 })

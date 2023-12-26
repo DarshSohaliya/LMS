@@ -1,5 +1,5 @@
 import express from 'express'
-import {register,login,logout,getProfile,forgotPassword,resetPassword,updateUser} from '../controllers/user.controller.js'
+import {register,login,logout,getProfile,forgotPassword,resetPassword,changePassword,updateUser} from '../controllers/user.controller.js'
 import { isLoggedIn } from '../middlewares/auth.middleware.js'
 import upload from '../middlewares/multer.middleware.js'
 
