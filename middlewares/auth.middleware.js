@@ -14,5 +14,14 @@ console.log(token);
 
     next()
 }
+const authorizedRoles = (...roles) => async (req,res,next) =>{
+     const currentUserRoles = req.user.role;
 
-export {isLoggedIn}
+     if (!roles.includes(currentUserRoles)) {
+        return next(new AppError('You do not have perssmission to access this route ',401))
+        
+     }next()
+}
+
+
+export {isLoggedIn , authorizedRoles}

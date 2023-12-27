@@ -33,7 +33,7 @@ const courseSchema = new mongoose.Schema({
     lectures: [{
       title:String,
       description:String,
-      lectures: {
+      lecture: {
         public_id: {
         type:String,
         required:true
