@@ -5,12 +5,12 @@ import upload from '../middlewares/multer.middleware.js'
 
 const router = express.Router() 
 
-router.post('/register' ,upload.single("avatar"), register)
+router.post('/register' , upload.single("avatar"), register)
 router.post('/login' , login)
 router.get('/logout' , logout)
 router.get('/me' ,isLoggedIn ,getProfile)
 router.post('/forgot-password',forgotPassword)
 router.post('/reset-password' , resetPassword)
 router.post('/change-password',isLoggedIn,changePassword)
-router.post('/update' , isLoggedIn ,upload.single("avatar"),updateUser )
+router.put('/update/:id' , isLoggedIn ,upload.single("avatar"),updateUser )
 export default router

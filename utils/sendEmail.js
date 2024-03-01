@@ -2,9 +2,10 @@
  import nodemailer from 'nodemailer'
 
  const sendEmail =async function (email ,subject ,message){
+    console.log(email, subject, message);
     let transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
+        host: process.env.SMTP_HOST ||  'smtp.ethereal.email' ,
+        port:process.env.SMTP_PORT,
         secure:false,
         auth: {
             user:process.env.SMTP_USERNAME,
@@ -13,8 +14,8 @@
 
     })
 
-    await transporter.sendEmail({
-        form: process.env.SMTP_FROM_EMAIL,
+    await transporter.sendMail({
+        form:process.env.SMTP_FROM_EMAIL,
         to:email,
         subject:subject,
         html:message,

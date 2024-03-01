@@ -6,14 +6,18 @@ import cloudinary from 'cloudinary'
 const getAllCourses = async function(req,res,next) {
 
     try {
+    //   console.log(.body);
         const courses = await Course.find({}).select('-lectures')
 
-     res.status(200).json({
-        success:true,
-        message:"All courses",
-        courses,
-
-     });
+        res.status(200).json({
+           success:true,
+           message:"All courses",
+           courses,
+   
+        });
+       
+        
+   
     } catch (error) {
         return next(new AppError(e.message,500))
     }
@@ -45,6 +49,7 @@ const getLecturesByCourseId = async function(req,res,next) {
 
 const craeteCourse = async function(req,res,next)  {
     const {title, description,category,createdBy} = req.body 
+    console.log("R",req.body);
 
     if (!title || !description || !category || !createdBy ) {
         return next(
@@ -70,17 +75,17 @@ const craeteCourse = async function(req,res,next)  {
       }
 
       if (req.file) {
-        // console.log("File :: ",req.file);
+        console.log("File :: ",req.file);
        try {
         const result = await  cloudinary.v2.uploader.upload(req.file.path, {
             folder: 'LMS'
         })
-        // console.log("File2 :: ",req.file);
+        console.log("File2 :: ",req.file);
         if (result) {
             course.thumbnail.public_id = result.public_id
             course.thumbnail.secure_url = result.secure_url
           }
-        //   console.log("File3 :: ",req.file);
+          console.log("File3 :: ",req.file);
           fs.rm(`uploads/${req.file.filename}`)
        } catch (error) {
         return next(
@@ -88,9 +93,10 @@ const craeteCourse = async function(req,res,next)  {
         )
        }
       }
-    //   console.log("File5 :`: ",req.file);
+      console.log("File5 :`: ",req.file);
       await course.save()
 
+      console.log("SUCCESS");
       res.status(200).json({
         success:true,
         message:"Course created successfully"

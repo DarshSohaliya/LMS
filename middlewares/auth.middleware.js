@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken'
 const isLoggedIn = async function(req,res,next)  {
    
     const {token} = req.cookies;
-    // console.log(req.cookies);
-console.log(token);
+    console.log("C",req.cookies);
+console.log("Token",token);
     if (!token) {
         return next(new AppError('Unauthenticated ,please login again',401))
     }
@@ -23,5 +23,15 @@ const authorizedRoles = (...roles) => async (req,res,next) =>{
      }next()
 }
 
-
-export {isLoggedIn , authorizedRoles}
+const authorizedSubscriber = async (req,res,next) => {
+     const subscription = req.user.subscription
+     const currentUserRoles = req.user.role;
+     
+     if(currentUserRoles !== 'ADMIN' && subscription.status !== "active")
+     {
+        return next(
+            new AppError('Plese subscribe to access this route !',500)
+        )
+     }
+}
+export {isLoggedIn , authorizedRoles,authorizedSubscriber}

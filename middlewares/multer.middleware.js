@@ -2,17 +2,20 @@
 import path from "path"
 
 import multer from "multer"
-
+console.log("Hi1 ");
 const upload = multer ({
+   
     dest: "uploads/",
     limits: {fileSize:50 * 1024 * 1024},
     storage:multer.diskStorage({
         destination:"uploads/",
-        filename: (_req ,file ,cd) => {
-            cd(null,file.originalname)
+        filename: (_req ,file ,cb) => {
+            console.log("dsd:",_req);
+            cb(null,file.originalname)
         },
     }),
     fileFilter: (_req,file,cb) => {
+        console.log(_req);
         let ext = path.extname(file.originalname)
 
         if (

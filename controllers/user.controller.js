@@ -1,9 +1,11 @@
 import User from "../models/user.model.js"
 import AppError from "../utils/error.utils.js"
-import bcrypt from 'bcryptjs'
+// import bcrypt from 'bcryptjs'
 import cloudinary from 'cloudinary'
 import fs from 'fs/promises'
 import crypto from 'crypto'
+// import { log } from "console"
+
 
 const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -12,17 +14,19 @@ const cookieOptions = {
 }
 
 const register = async (req,res,next) =>{
+    console.log(req.body);
+    console.log("io",req.body.avatar);
     const {fullName , email, password} = req.body
     if (!fullName || !email || !password) {
         return next(new AppError('All fields are reqires' ,400))
     }
-    
-    const userExists = await User.findOne({email})
+    // console.log("olk");
+    const userExists = await User.findOne({email})  
 
     if(userExists){
         return next(new AppError('Email alrady Exists',400))
     }
-
+  
     const user = await User.create({
         fullName,
         email,
@@ -32,32 +36,41 @@ const register = async (req,res,next) =>{
             secure_url:'https://res.cloudinary.com/du9jzqlpt/image/upload/v1674647316/avatar_drzgxv.jpg',
         }
     })
+    // console.log("A1",req.body.avatar);
+    console.log("A",req.file);
 
     if (!user) {
-        return next(new AppError('User registration failed ,plese try again',400))
+        return next(
+            new AppError('User registration failed ,plese try again',400))
     }
        console.log("File:",JSON.stringify(req.file));
-      if (req.file) {
-         try {
-            const result = await cloudinary.v2.uploader.upload(req.file.path ,{
-                folder:"LMS",
-                width: 250,
-                height:250,
-                gravity:'faces',
-                crop:'fill'
-
-            })
-            if (result) {
-                user.avatar.public_id = result.public_id;
-                user.avatar.secure_url = result.secure_url;
-
-                fs.rm(`uploads/${req.file.name}`)
-            }
-         } catch (error) {
-            return next(
-                new AppError(error || 'File not uploaded , plese try again',500)
-            )            
-         }
+  
+    if (req.file) {
+        try {
+            console.log("FG",req.file);
+                    console.log("Df",req.file.path);
+          const result = await cloudinary.v2.uploader.upload(req.file.path, {
+            folder: 'Lms', // Save files in a folder named lms
+            width: 250,
+            height: 250,
+            gravity: 'faces', // This option tells cloudinary to center the image around detected faces (if any) after cropping or resizing the original image
+            crop: 'fill',
+          });
+    
+          console.log("FG",result);
+          if (result) {
+            console.log("DF",result);
+            user.avatar.public_id = result.public_id;
+            user.avatar.secure_url = result.secure_url;
+    
+            // After successful upload remove the file from local storage
+            fs.rm(`uploads/${req.file.filename}`);
+          }
+        } catch (error) {
+          return next(
+            new AppError(error || 'File not uploaded, please try again', 400)
+          );
+        }
       }
 
     await user.save()
@@ -76,7 +89,7 @@ const register = async (req,res,next) =>{
 
 }
 
-const login  = async (req,res) =>{
+const login  = async (req,res,next) =>{
   try {
 
     const {email , password} = req.body
@@ -94,7 +107,7 @@ const login  = async (req,res) =>{
     }
  
     const token =await user.generateJWTToken()
-    console.log(token);
+    console.log("T",token);
     user.password = undefined
  
     res.cookie("token" , token , cookieOptions)
@@ -251,22 +264,25 @@ const changePassword = async (req,res) => {
      })
 }
 
-const updateUser = async (req,res) => {
+const updateUser = async (req,res ,next) => {
     const {fullName} = req.body
-    const {id} = req.user.id
-
+    const {id} = req.params
+console.log("A",req.body);
+console.log("B",req.params);
     const user = await User.findById(id)
-
+console.log("U",user);
     if (!user) {
         return next(
             new AppError('User dose not exists',400)
         )
     }
 
-    if (req.fullName) {
+    console.log(fullName);
+    if (fullName) {
         user.fullName = fullName
 
     }
+    console.log("y",req.file);
     if (req.file) {
         await cloudinary.v2.uploader.destroy(user.avatar.public_id)
 
@@ -284,7 +300,7 @@ const updateUser = async (req,res) => {
                    user.avatar.public_id = result.public_id;
                    user.avatar.secure_url = result.secure_url;
    
-                   fs.rm(`uploads/${req.file.name}`)
+                   fs.rm(`uploads/${req.file.filename}`)
                }
             } catch (error) {
                return next(
@@ -293,7 +309,7 @@ const updateUser = async (req,res) => {
             }
          
     }
-
+console.log("HI@@");
     await user.save()
 
     res.status(200).json({

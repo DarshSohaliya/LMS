@@ -42,7 +42,11 @@ const userSchema = new mongoose.Schema({
         default:"USER"
      },
      forgotPasswordToken: String,
-     forgotPasswordExpiry:Date
+     forgotPasswordExpiry:Date,
+     subscription:{
+        id:String,
+        status:String
+     }
 },{
     timestamps:true
 })
@@ -59,8 +63,8 @@ userSchema.methods = {
     generateJWTToken: async function() {
         return jwt.sign(
             { id: this._id, email: this.email, subscription: this.subscription, role: this.role },
-            "process",
-            { expiresIn: '24h' }
+            process.env.JWT_SECRET,
+            { expiresIn:process.env.JWT_EXPIRY}
 
         )
     },
