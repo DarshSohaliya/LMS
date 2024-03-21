@@ -35,6 +35,7 @@ console.log("fdh");
         customer_notify:1,
         total_count: 12
     })
+    console.log("SS:",subscription);
 console.log("sg");
     user.subscription.id = subscription.id
     user.subscription.status= subscription.status
@@ -61,9 +62,10 @@ const verifySubscription = async (req,res,next) => {
    try {
     const {id} = req.user
     const  { razorpay_payment_id, razorpay_signature, razorpay_subscription_id} = req.body
-
+console.log({id});
+console.log( razorpay_payment_id, razorpay_signature, razorpay_subscription_id);
     const user = await User.findById(id)
-
+            console.log(user);
     if (!user) {
        return next(
            new AppError('Unauthorized,plese login')
@@ -71,12 +73,16 @@ const verifySubscription = async (req,res,next) => {
    }
 
    const subscriptionId = user.subscription.id
-
-   const generatedSingnature = crypto
-   .createHmac('sha256' , "procces")
+   console.log("SI:",subscriptionId);
+   console.log(process.env.RAZORPAY_SECRET);
+   const generatedSignature = crypto
+   .createHmac('sha256', process.env.RAZORPAY_SECRET)
    .update(`${razorpay_payment_id}|${subscriptionId}`)
-   .digest('hex')
+   .digest('hex');
 
+
+   console.log("Generated Signature:", generatedSignature);
+   console.log("Razorpay Signature:", razorpay_signature);
    if (generatedSingnature !== razorpay_signature) {
        return next(
            new AppError('Payment not verifyed plese try again',500)

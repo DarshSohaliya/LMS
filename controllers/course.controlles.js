@@ -162,7 +162,7 @@ const addLectureToCourseById = async (req,res,next) => {
    try {
     const {title,description} = req.body
     const {id} = req.params
-
+console.log("hiT");
     if (!title || !description ) {
        return next(
            new AppError('All field are required',500)
@@ -171,7 +171,7 @@ const addLectureToCourseById = async (req,res,next) => {
 
     const course =await Course.findById(id)
 
-    
+    console.log(course);
     if (!course) {
        return (
            new AppError('Course with given id dose not exist',500)
@@ -183,11 +183,12 @@ const addLectureToCourseById = async (req,res,next) => {
        description,
        lecture:{}
    }
-
+console.log("GG");
    if (req.file) {
        try {
            const result = await  cloudinary.v2.uploader.upload(req.file.path, {
-               folder: 'LMS'
+               folder: 'LMS',
+               resource_type: 'video'
            })
 
            if (result) {
@@ -198,12 +199,13 @@ const addLectureToCourseById = async (req,res,next) => {
              fs.rm(`uploads/${req.file.filename}`)
 
           } catch (error) {
+            console.log("LOL",error);
            return next(
                new AppError(error.message,500)
            )
           }
    }
-
+console.log("DDY");
    course.lectures.push(lectureData)
 
    course.numbersOfLecture = course.lectures.length
