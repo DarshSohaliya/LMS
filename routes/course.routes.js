@@ -9,6 +9,7 @@ import upload from '../middlewares/multer.middleware.js'
  router.route('/')
       .get( getAllCourses)
      .post(isLoggedIn,authorizedRoles("ADMIN"),upload.single('thumbnail'),craeteCourse)
+     .delete(isLoggedIn,authorizedRoles("ADMIN"),deletelecture)
 
 
  router.route('/:id')
@@ -16,6 +17,7 @@ import upload from '../middlewares/multer.middleware.js'
      .put(isLoggedIn,authorizedRoles("ADMIN"),updateCourse)
      .delete(isLoggedIn,authorizedRoles("ADMIN"),removeCourse)
      .post(isLoggedIn,authorizedRoles("ADMIN"),upload.single('lecture'),addLectureToCourseById)
-     .delete(isLoggedIn,authorizedRoles("ADMIN"),deletelecture)
-
+     
+   
+     
  export default router

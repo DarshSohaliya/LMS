@@ -29,7 +29,8 @@ const getAllCourses = async function(req,res,next) {
 const getLecturesByCourseId = async function(req,res,next) {
 
     try {
-        const {id} = req.params
+        console.log("LL");
+        const {id} = req.params;
 
         const course  =await Course.findById(id)
           if (!course) {
@@ -136,6 +137,7 @@ const updateCourse = async function(req,res,next) {
 
 const removeCourse  = async function(req,res,next) {
     try {
+        console.log("ui");
         const {id} = req.params
         const course = await Course.findById(id)
        
@@ -144,9 +146,9 @@ const removeCourse  = async function(req,res,next) {
                 new AppError('Course with given id dose not exist',500)
             )
         }
-         
-        await course.findByIdAndDelete(id);
-
+         console.log("PO");
+        await course.deleteOne();
+console.log("PP");
       res.status(200).json({
         success:true,
         message:'Course deleted successfully'
@@ -225,17 +227,43 @@ console.log("DDY");
 }
 
 const deletelecture = async (req,res,next) => {
+    console.log("gg");
    try {
-    const {id} = req.params
-    const course = await Course.findById(id)
+    const {courseId, lectureId} = req.query
 
+    if (!courseId) {
+        return next(new AppError('Course ID is required', 400));
+      }
+    
+      if (!lectureId) {
+        return next(new AppError('Lecture ID is required', 400));
+      }
+    const course = await Course.findById(courseId)
+ 
     if (!course) {
-        return next(
-            new AppError('Course is Not Created',500)
-        )
-    }
+        return next(new AppError('Invalid ID or Course does not exist.', 404));
+      }
+     
+      const lectureIndex = course.lectures.findIndex(
+        (lecture) => lecture._id.toString() === lectureId.toString()
+      )
+    
+      if (lectureIndex === -1) {
+         return next(new AppError('Lecture dose not exist',404))
+      }
+  
+       await cloudinary.v2.uploader.destroy(
+        course.lectures[lectureIndex].lecture.public_id,
+        {
+            resource_type : 'video',
+        }
+       )
+    
+       course.lectures.splice(lectureIndex,1)
 
-    await course.lectures.findByIdAndDelete(id);
+       course.numbersOfLecture = course.lectures.length;
+
+        await course.save()  
 
     res.status(200).json({
         success:true,
